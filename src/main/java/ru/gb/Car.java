@@ -1,6 +1,8 @@
 package ru.gb;
 
-public class Car implements Runnable {
+import java.util.concurrent.Callable;
+
+public class Car extends Cars implements Runnable, Callable<int[]> {
     private static int CARS_COUNT;
     static {
         CARS_COUNT = 0;
@@ -26,11 +28,27 @@ public class Car implements Runnable {
             System.out.println(this.name + " готовится");
             Thread.sleep(500 + (int)(Math.random() * 800));
             System.out.println(this.name + " готов");
+            addPreparation();
+            while (getPreparation() < 4) {
+                ;  // ждем когда все подготовятся
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         for (int i = 0; i < race.getStages().size(); i++) {
             race.getStages().get(i).go(this);
         }
+        if(getRaceEnd() == 0) {
+            System.out.println(this.name + " WIN");
+        }
+        addRaceEnd();
+    }
+
+    @Override
+    public int[] call() throws Exception {
+        int[] arr = new int[2];
+        arr[0]=getPreparation();
+        arr[1]=getRaceEnd();
+        return arr;
     }
 }
